@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <link type="text/css" href="./css/index.css">
+      <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+      <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+      <style>
+        * {
+            box-sizing: border-box;
+          }
+
+          .button {
+              width: 45%;
+              height: 60px;
+          }
+
+          .header {
+              font-size: 30px;
+              font-weight: bold;
+              margin-left: 20px;
+          }
+
+          #play, #pause {
+              float: left;
+              width: 130px;
+              height: 34px;
+              background-color: transparent;
+              font-weight: bold;
+              padding: 5px;
+              border: 2px solid gray;
+              border-radius: 10px;
+              margin-left: 20px;
+              text-align: center;
+              cursor: pointer;
+          }
+
+          #play:hover, #pause:hover {
+              background-color: gray;
+              color: white;
+          }
+
+          #player {
+              margin-left: 20px;
+          }
+      </style>
+  </head>
+  <body>
+      <p class="header">Node Test 1</p>
+      <hr><br>
+      <div class="button"> 
+        <div id="play">PLAY</div>
+        <div id="pause">PAUSE</div>
+      </div>
+      <div>
+      <div id="player"></div>
+    </div>
+
+    <script>
+      var tag = document.createElement('script');
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          videoId: 'Dkk9gvTmCXY',
+          events: {
+            'onReady': onPlayerReady
+          }
+        });
+      }
+
+      var socket = io();
+
+      function onPlayerReady(event) {
+        //video play function
+          var playBtn = document.getElementById("play");
+          playBtn.addEventListener("click", function(){
+            socket.emit('playClicked', {id: event.target});
+          });
+
+          socket.on('playClicked', function(data){
+              //console.log('play is clicked');
+              player.playVideo();
+          });
+        //video pause function
+          var pauseBtn = document.getElementById("pause");
+          pauseBtn.addEventListener("click", function(){
+            socket.emit('pauseClicked', {id: event.target});
+          });
+
+          socket.on('pauseClicked', function(){
+            //console.log('pause is clicked');
+            player.pauseVideo();
+          });
+      }
+      function stopVideo() {
+        player.stopVideo();
+      }
+    </script>
+  </body>
+</html>
